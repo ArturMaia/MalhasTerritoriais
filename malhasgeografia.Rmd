@@ -1,0 +1,75 @@
+---
+title: "Recortes de áreas"
+author: "Artur Maia"
+date: "2024-05-06"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introdução
+
+Esse projeto conta com uma linha de recortes cartográficos de áreas, formando assim uma coleção ordenada de mapas, indo desde o mapa mundi até um mapa estadual.
+
+### Bibliotecas
+```{r message=FALSE, warning=FALSE}
+library(rnaturalearth)
+library(rnaturalearthhires)
+library(ggplot2)
+library(geobr)
+library(mapview)
+library(maps)
+library(cowplot)
+library(dplyr)
+```
+
+### Mundial:
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+mundo <- map_data("world")
+ggplot(mundo, aes(x=long, y=lat, group=group))+
+  geom_polygon(fill="white", colour = "black")
+```
+
+### Continentes:
+
+O continente **Africano** e o **Sul-Americano** foram os escolhidos:
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+continente1<-ne_countries(continent = 'South America',returnclass = 'sf')
+continente2<-ne_countries(continent = 'Africa',returnclass = 'sf')
+c1<-ggplot()+geom_sf(data=continente1)
+c2<-ggplot()+geom_sf(data=continente2)
+plot_grid(c2,c1)
+```
+
+### Países:
+
+Diante dos continentes que foram mostrados para esse projeto, em cada continente foi escolhido um país sendo esses países **Brail** e **Angola**.
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+br<-read_state(code_state = "all",year = 2010)
+```
+```{r message=FALSE, warning=FALSE, include=FALSE}
+df<-read_state(code_state = 53)
+```
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+an<-ne_states(country = 'Angola',returnclass = 'sf')
+br<-read_state(code_state = "all",year = 2010)
+#df<-read_state(code_state = 53)
+lu<-filter(an,name=="Luanda")
+p1<-ggplot(br)+aes(group= 'code_tate')+geom_sf(size= 0.1,fill="#FFF9C5")+geom_sf(aes(group= 'code_state'),data = df,fill= "#EB8E18", col= "#EB8E18")+labs(x="longitude", y="latitude", title = "Brasil (capital: Distrito Federal)")+
+  theme_bw()
+p2<-ggplot(an)+aes(group= 'woe_id')+geom_sf(size= 0.1,fill="#FFF9C5")+geom_sf(aes(group= 'woe_id'),data = lu,fill= "#EB8E18", col= "#EB8E18")+labs(x="longitude", y="latitude", title = "Angola (capital: Luanda)")+
+  theme_bw()
+plot_grid(p1,p2)
+```
+
+Aqui diante dos países escolhidos,a localização de suas capitais agora são mostradas, sendo o **Distrito Federal** o estado no qual *Brasília* a capital do Brasil se encontra e **Luanda** a capital de Angola.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+mapview(lu)
+mapview(df)
+```
+
